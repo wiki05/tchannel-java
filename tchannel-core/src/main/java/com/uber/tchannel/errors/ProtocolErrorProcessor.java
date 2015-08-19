@@ -20,44 +20,40 @@
  * THE SOFTWARE.
  */
 
-package com.uber.tchannel.headers;
+package com.uber.tchannel.errors;
 
-import org.junit.Test;
+import com.uber.tchannel.messages.ErrorMessage;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelHandlerContext;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+public class ProtocolErrorProcessor {
 
-import static org.junit.Assert.*;
+    public static void handleError(ChannelHandlerContext ctx, ProtocolError protocolError) {
+        ChannelFuture f = ctx.writeAndFlush(new ErrorMessage(
+                protocolError.getId(),
+                protocolError.getErrorType(),
+                protocolError.getTrace(),
+                protocolError.getErrorMessage()
+        ));
+        switch (protocolError.getErrorType()) {
 
-public class RetryFlagTest {
-
-    @Test
-    public void testToRetryFlag() throws Exception {
-        List<Character> unparsedFlags = new ArrayList<Character>() {{
-            add('t');
-            add('n');
-            add('c');
-        }};
-
-        for (char c : unparsedFlags) {
-            assertNotNull(RetryFlag.toRetryFlag(c));
+            case Invalid:
+            case Timeout:
+            case Cancelled:
+            case Busy:
+            case Declined:
+            case UnexpectedError:
+            case BadRequest:
+            case NetworkError:
+            case Unhealthy:
+                break;
+            case FatalProtocolError:
+                f.addListener(ChannelFutureListener.CLOSE);
+                break;
+            default:
+                break;
         }
 
-        assertNull(RetryFlag.toRetryFlag('f'));
-
-    }
-
-    @Test
-    public void testParseFlags() throws Exception {
-        Set<RetryFlag> realFlags = new HashSet<RetryFlag>() {{
-            add(RetryFlag.NoRetry);
-            add(RetryFlag.RetryOnConnectionError);
-            add(RetryFlag.RetryOnTimeout);
-        }};
-
-        Set<RetryFlag> parsedFlags = RetryFlag.parseFlags("tnc");
-        assertEquals(realFlags, parsedFlags);
     }
 }

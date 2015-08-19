@@ -20,44 +20,39 @@
  * THE SOFTWARE.
  */
 
-package com.uber.tchannel.headers;
+package com.uber.tchannel.errors;
 
-import org.junit.Test;
+import com.uber.tchannel.tracing.Trace;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+public class FatalProtocolError extends Exception implements ProtocolError {
+    private final long id;
+    private final ErrorType errorType = ErrorType.FatalProtocolError;
+    private final Trace trace;
+    private final String message;
 
-import static org.junit.Assert.*;
-
-public class RetryFlagTest {
-
-    @Test
-    public void testToRetryFlag() throws Exception {
-        List<Character> unparsedFlags = new ArrayList<Character>() {{
-            add('t');
-            add('n');
-            add('c');
-        }};
-
-        for (char c : unparsedFlags) {
-            assertNotNull(RetryFlag.toRetryFlag(c));
-        }
-
-        assertNull(RetryFlag.toRetryFlag('f'));
-
+    public FatalProtocolError(long id, Trace trace, String message) {
+        this.id = id;
+        this.trace = trace;
+        this.message = message;
     }
 
-    @Test
-    public void testParseFlags() throws Exception {
-        Set<RetryFlag> realFlags = new HashSet<RetryFlag>() {{
-            add(RetryFlag.NoRetry);
-            add(RetryFlag.RetryOnConnectionError);
-            add(RetryFlag.RetryOnTimeout);
-        }};
+    @Override
+    public long getId() {
+        return id;
+    }
 
-        Set<RetryFlag> parsedFlags = RetryFlag.parseFlags("tnc");
-        assertEquals(realFlags, parsedFlags);
+    @Override
+    public ErrorType getErrorType() {
+        return errorType;
+    }
+
+    @Override
+    public Trace getTrace() {
+        return trace;
+    }
+
+    @Override
+    public String getErrorMessage() {
+        return message;
     }
 }

@@ -20,44 +20,18 @@
  * THE SOFTWARE.
  */
 
-package com.uber.tchannel.headers;
+package com.uber.tchannel.errors;
 
-import org.junit.Test;
+import com.uber.tchannel.tracing.Trace;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+public interface ProtocolError {
 
-import static org.junit.Assert.*;
+    long getId();
 
-public class RetryFlagTest {
+    ErrorType getErrorType();
 
-    @Test
-    public void testToRetryFlag() throws Exception {
-        List<Character> unparsedFlags = new ArrayList<Character>() {{
-            add('t');
-            add('n');
-            add('c');
-        }};
+    Trace getTrace();
 
-        for (char c : unparsedFlags) {
-            assertNotNull(RetryFlag.toRetryFlag(c));
-        }
+    String getErrorMessage();
 
-        assertNull(RetryFlag.toRetryFlag('f'));
-
-    }
-
-    @Test
-    public void testParseFlags() throws Exception {
-        Set<RetryFlag> realFlags = new HashSet<RetryFlag>() {{
-            add(RetryFlag.NoRetry);
-            add(RetryFlag.RetryOnConnectionError);
-            add(RetryFlag.RetryOnTimeout);
-        }};
-
-        Set<RetryFlag> parsedFlags = RetryFlag.parseFlags("tnc");
-        assertEquals(realFlags, parsedFlags);
-    }
 }

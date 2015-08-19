@@ -22,6 +22,7 @@
 
 package com.uber.tchannel.codecs;
 
+import com.uber.tchannel.errors.ErrorType;
 import com.uber.tchannel.messages.ErrorMessage;
 import com.uber.tchannel.tracing.Trace;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -41,7 +42,7 @@ public class ErrorCodecTest {
 
         ErrorMessage errorMessage = new ErrorMessage(
                 42,
-                ErrorMessage.ErrorType.FatalProtocolError,
+                ErrorType.FatalProtocolError,
                 new Trace(0, 0, 0, (byte) 0),
                 "I'm sorry Dave, I can't do that."
         );
