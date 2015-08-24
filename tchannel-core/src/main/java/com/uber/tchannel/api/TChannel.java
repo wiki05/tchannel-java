@@ -99,6 +99,8 @@ public final class TChannel {
         return f;
     }
 
+    public String getService() { return service; }
+
     public void shutdown() throws InterruptedException {
         this.channelManager.close();
         this.bossGroup.shutdownGracefully();
