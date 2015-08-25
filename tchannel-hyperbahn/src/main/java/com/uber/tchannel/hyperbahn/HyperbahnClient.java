@@ -164,8 +164,4 @@ public class HyperbahnClient {
             advertisePerPeer(channel, hosts.get(i), ports.get(i));
         }
     }
-
-    public static void main(String[] args) {
-
-    }
 }
