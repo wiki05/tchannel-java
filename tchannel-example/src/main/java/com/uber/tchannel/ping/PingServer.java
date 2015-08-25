@@ -23,11 +23,15 @@
 package com.uber.tchannel.ping;
 
 import com.uber.tchannel.api.TChannel;
+import com.uber.tchannel.hyperbahn.HyperbahnClient;
+import io.netty.channel.ChannelFuture;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
+
+import java.util.concurrent.Future;
 
 public class PingServer {
 
@@ -64,7 +68,13 @@ public class PingServer {
                 .setServerPort(this.port)
                 .build();
 
-        tchannel.listen().channel().closeFuture().sync();
+        ChannelFuture f = tchannel.listen().channel().closeFuture();
+        HyperbahnClient client = new HyperbahnClient.Builder(tchannel)
+                .addPeer("127.0.0.1", 21306)
+                .build();
+        client.advertise();
+
+        f.sync();
     }
 
 }
