@@ -1,6 +1,10 @@
-sudo: false
 language: java
+
+sudo: false
+
 addons:
   apt:
+    sources:
+    - debian-sid
     packages:
     - thrift-compiler
