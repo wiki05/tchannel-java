@@ -9,4 +9,5 @@ addons:
     - ubuntu-toolchain-r-test
     - debian-sid
     packages:
+    - locales
     - thrift-compiler
