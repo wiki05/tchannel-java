@@ -1,10 +1,11 @@
 ---
 language: java
 
-jdk:
-  - openjdk7
-  - oraclejdk7
+sudo: false
 
-before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -y thrift-compiler
+addons:
+  apt:
+    sources:
+    - debian-sid
+    packages:
+    - thrift-compiler
