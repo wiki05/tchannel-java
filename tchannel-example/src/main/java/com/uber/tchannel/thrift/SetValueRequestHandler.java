@@ -30,11 +30,11 @@ import com.uber.tchannel.thrift.generated.KeyValue;
 
 import java.util.Map;
 
-public class SetValueHandlerDefault extends ThriftRequestHandler<KeyValue.setValue_args, KeyValue.setValue_result> {
+public class SetValueRequestHandler extends DefaultRequestHandler<KeyValue.setValue_args, KeyValue.setValue_result> {
 
     private final Map<String, String> keyValueStore;
 
-    public SetValueHandlerDefault(Map<String, String> keyValueStore) {
+    public SetValueRequestHandler(Map<String, String> keyValueStore) {
         this.keyValueStore = keyValueStore;
     }
 
