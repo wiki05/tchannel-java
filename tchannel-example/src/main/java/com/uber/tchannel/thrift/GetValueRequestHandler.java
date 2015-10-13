@@ -22,7 +22,8 @@
 
 package com.uber.tchannel.thrift;
 
-import com.uber.tchannel.api.DefaultRequestHandler;
+import java.util.Map;
+
 import com.uber.tchannel.api.Request;
 import com.uber.tchannel.api.Response;
 import com.uber.tchannel.api.ResponseCode;
@@ -30,9 +31,7 @@ import com.uber.tchannel.api.handlers.ThriftRequestHandler;
 import com.uber.tchannel.thrift.generated.KeyValue;
 import com.uber.tchannel.thrift.generated.NotFoundError;
 
-import java.util.Map;
-
-public class GetValueRequestHandler extends DefaultRequestHandler<KeyValue.getValue_args, KeyValue.getValue_result> {
+public class GetValueRequestHandler extends ThriftRequestHandler<KeyValue.getValue_args, KeyValue.getValue_result> {
 
     protected final Map<String, String> keyValueStore;
 
@@ -40,6 +39,7 @@ public class GetValueRequestHandler extends DefaultRequestHandler<KeyValue.getVa
         this.keyValueStore = keyValueStore;
     }
 
+    @Override
     public Response<KeyValue.getValue_result> handleImpl(Request<KeyValue.getValue_args> request) {
         String key = request.getBody().getKey();
 
@@ -51,7 +51,7 @@ public class GetValueRequestHandler extends DefaultRequestHandler<KeyValue.getVa
         }
 
         return new Response.Builder<>(
-                new KeyValue.getValue_result(value, err), request.getEndpoint(), ResponseCode.OK)
-                .build();
+            new KeyValue.getValue_result(value, err), request.getEndpoint(), ResponseCode.OK)
+            .build();
     }
 }

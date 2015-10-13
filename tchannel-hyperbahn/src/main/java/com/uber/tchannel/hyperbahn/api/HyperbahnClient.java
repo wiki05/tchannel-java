@@ -22,16 +22,6 @@
 
 package com.uber.tchannel.hyperbahn.api;
 
-import com.google.gson.Gson;
-import com.uber.tchannel.api.Request;
-import com.uber.tchannel.api.Response;
-import com.uber.tchannel.api.TChannel;
-import com.uber.tchannel.hyperbahn.messages.AdvertiseRequest;
-import com.uber.tchannel.hyperbahn.messages.AdvertiseResponse;
-import io.netty.util.concurrent.Future;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -44,6 +34,16 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.regex.Pattern;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import com.google.gson.Gson;
+import com.uber.tchannel.api.Request;
+import com.uber.tchannel.api.Response;
+import com.uber.tchannel.api.TChannel;
+import com.uber.tchannel.hyperbahn.messages.AdvertiseRequest;
+import com.uber.tchannel.hyperbahn.messages.AdvertiseResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class HyperbahnClient {
 
     private static final String HOSTS_FILE_PATH = "/etc/uber/hyperbahn/hosts.json";
@@ -55,14 +55,18 @@ public class HyperbahnClient {
     private List<InetSocketAddress> routers;
 
     public HyperbahnClient(TChannel tchannel) throws IOException {
-        this.tchannel = tchannel;
-        this.routers = HyperbahnClient.loadRouters();
+        this(tchannel, HOSTS_FILE_PATH);
     }
 
-    private static List<InetSocketAddress> loadRouters() throws IOException {
+    public HyperbahnClient(TChannel tchannel, String hostsFilePath) throws IOException {
+        this.tchannel = tchannel;
+        this.routers = HyperbahnClient.loadRouters(hostsFilePath);
+    }
+
+    private static List<InetSocketAddress> loadRouters(String hostsFilePath) throws IOException {
 
         List<String> hostPorts;
-        try (Reader reader = new FileReader(HyperbahnClient.HOSTS_FILE_PATH)) {
+        try (Reader reader = new FileReader(hostsFilePath)) {
             hostPorts = new Gson().fromJson(reader, List.class);
         }
 
@@ -80,28 +84,28 @@ public class HyperbahnClient {
     }
 
     public Response<AdvertiseResponse> advertise(
-            String service,
-            int cost
+        String service,
+        int cost
     ) throws InterruptedException, TimeoutException, ExecutionException {
 
         final AdvertiseRequest advertiseRequest = new AdvertiseRequest();
         advertiseRequest.addService(service, cost);
 
         final Request<AdvertiseRequest> request = new Request.Builder<>(
-                advertiseRequest,
-                HYPERBAHN_SERVICE_NAME,
-                HYPERBAHN_ADVERTISE_ENDPOINT
+            advertiseRequest,
+            HYPERBAHN_SERVICE_NAME,
+            HYPERBAHN_ADVERTISE_ENDPOINT
         )
-                .setTTL(1, TimeUnit.SECONDS)
-                .build();
+            .setTTL(1, TimeUnit.SECONDS)
+            .build();
 
         final InetSocketAddress router = this.routers.get(new Random().nextInt(this.routers.size()));
 
-        Future<Response<AdvertiseResponse>> responseFuture = this.tchannel.callJSON(
-                router.getAddress(),
-                router.getPort(),
-                request,
-                AdvertiseResponse.class
+        ListenableFuture<Response<AdvertiseResponse>> responseFuture = this.tchannel.callJSON(
+            router.getAddress(),
+            router.getPort(),
+            request,
+            AdvertiseResponse.class
         );
 
         return responseFuture.get(2, TimeUnit.SECONDS);

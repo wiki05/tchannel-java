@@ -27,11 +27,13 @@ import com.uber.tchannel.api.Response;
 import com.uber.tchannel.api.ResponseCode;
 import com.uber.tchannel.api.handlers.JSONRequestHandler;
 
-public class JsonRequestHandler extends DefaultRequestHandler<RequestPojo, ResponsePojo> {
+public class JsonRequestHandler extends JSONRequestHandler<RequestPojo, ResponsePojo> {
+
     @Override
-    public Response<ResponsePojo> handle(Request<RequestPojo> request) {
+    public Response<ResponsePojo> handleImpl(Request<RequestPojo> request) {
         System.out.println(request);
 
         return new Response.Builder<>(new ResponsePojo(true, "hi!"), request.getEndpoint(), ResponseCode.OK).build();
     }
+
 }

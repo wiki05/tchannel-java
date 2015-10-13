@@ -19,8 +19,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-
 package com.uber.tchannel.hyperbahn;
+
+import java.util.concurrent.TimeUnit;
 
 import com.uber.tchannel.api.Response;
 import com.uber.tchannel.api.TChannel;
@@ -28,13 +29,11 @@ import com.uber.tchannel.hyperbahn.api.HyperbahnClient;
 import com.uber.tchannel.hyperbahn.messages.AdvertiseResponse;
 import com.uber.tchannel.ping.PingRequestHandler;
 
-import java.util.concurrent.TimeUnit;
-
 public class HyperbahnExample {
     public static void main(String[] args) throws Exception {
         TChannel tchannel = new TChannel.Builder("hyperbahn-example")
-                .register("ping", new PingRequestHandler())
-                .build();
+            .register("ping", new PingRequestHandler())
+            .build();
 
         tchannel.listen();
 
