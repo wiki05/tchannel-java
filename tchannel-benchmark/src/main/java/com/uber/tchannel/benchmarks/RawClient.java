@@ -105,7 +105,6 @@ public class RawClient {
                     buffer.copy()
             );
 
-
             ListenableFuture<RawResponse> future = client.call(
                     InetAddress.getByName(host),
                     port,
@@ -133,7 +132,6 @@ public class RawClient {
                 }
             });
         }
-
 
         Thread.sleep(5000);
         System.out.println("The client made " + clientQueryCount.get() + " calls");
