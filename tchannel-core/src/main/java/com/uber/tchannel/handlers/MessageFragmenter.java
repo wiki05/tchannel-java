@@ -132,10 +132,8 @@ public class MessageFragmenter extends MessageToMessageEncoder<RawMessage> {
                 default:
                     writeOutbound(ctx, buffer, msg, state, out);
                     return state;
-
             }
         }
-
     }
 
     protected int writeArg(ByteBuf arg, ByteBuf buffer) {

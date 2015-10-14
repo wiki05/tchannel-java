@@ -61,7 +61,7 @@ public class RawServer {
     }
 
     public void run() throws Exception {
-        TChannel tchannel = new TChannel.Builder("ping-server")
+        TChannel tchannel = new TChannel.Builder("raw-server")
                 .register("raw", new RawRequestHandler())
                 .setServerHost(InetAddress.getLocalHost())
                 .setMaxQueuedRequests(Integer.MAX_VALUE)

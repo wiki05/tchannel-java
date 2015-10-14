@@ -34,7 +34,7 @@ public class RawRequestHandler implements RequestHandler {
         RawResponse response = new RawResponse(
                 request.getId(),
                 ResponseCode.OK,
-                null,
+                request.getTransportHeaders(),
                 request.getArg1(),
                 request.getArg2(),
                 request.getArg3()

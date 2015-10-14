@@ -25,9 +25,14 @@ package com.uber.tchannel.benchmarks;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.uber.tchannel.api.Request;
 import com.uber.tchannel.api.TChannel;
+import com.uber.tchannel.codecs.CodecUtils;
+import com.uber.tchannel.schemes.JSONSerializer;
 import com.uber.tchannel.schemes.RawRequest;
 import com.uber.tchannel.schemes.RawResponse;
+import com.uber.tchannel.schemes.Serializer;
+import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
 import org.apache.commons.cli.DefaultParser;
@@ -37,6 +42,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 
 import java.net.InetAddress;
+import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -77,35 +83,34 @@ public class RawClient {
 
     public void run() throws Exception {
 
+        class Ping {
+            private final String request;
+
+            public Ping(String request) {
+                this.request = request;
+            }
+        }
+
+
         // TODO move the warm duration has a cmd line parameter
         Long endTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
 
-        RawRequest request = new RawRequest(
-                100,
-                "raw",
-                null,
-                Unpooled.wrappedBuffer("raw".getBytes()),
-                ByteBufAllocator.DEFAULT.buffer(1),
-                ByteBufAllocator.DEFAULT.buffer(10)
-
-        );
-
-        warmup(request, endTime);
+        warmup(ByteBufAllocator.DEFAULT.buffer(1024), endTime);
 
         Thread.sleep(5000);
 
         endTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
 
-        int actualQueryCount = makeCalls(request, endTime);
-        System.out.println("The QPS for this iteration of the benchmark was " + actualQueryCount / 60);
+        int actualQueryCount = makeCalls(ByteBufAllocator.DEFAULT.buffer(1024), endTime);
+        System.out.println("The QPS for this iteration of the benchmark was " + actualQueryCount / 60.0);
     }
 
-    public void warmup(RawRequest request, long endTime) throws Exception {
-        int actualQPS = makeCalls(request, endTime);
+    public void warmup(ByteBuf buffer, long endTime) throws Exception {
+        int actualQPS = makeCalls(buffer, endTime);
         System.out.println("During the warmup duration the actualQPS was: " + actualQPS);
     }
 
-    public int makeCalls(final RawRequest request, final long endTime) throws Exception {
+    public int makeCalls(final ByteBuf buffer, final long endTime) throws Exception {
 
         final AtomicInteger roundTripQueryCount = new AtomicInteger();
         final AtomicInteger clientQueryCount = new AtomicInteger();
@@ -113,6 +118,19 @@ public class RawClient {
         TChannel client = new TChannel.Builder("raw-client").build();
 
         while (System.nanoTime() < endTime) {
+
+            ByteBuf headers = ByteBufAllocator.DEFAULT.buffer();
+
+            RawRequest request = new RawRequest(
+                    100,
+                    "raw",
+                    new HashMap<String, String>(),
+                    Unpooled.wrappedBuffer("raw".getBytes()),
+                    headers,
+                    buffer.copy()
+            );
+
+
             ListenableFuture<RawResponse> future = client.call(
                     InetAddress.getByName(host),
                     port,
@@ -136,15 +154,15 @@ public class RawClient {
 
                 @Override
                 public void onFailure(Throwable err) {
-
+                    System.out.println("Failure");
                 }
             });
         }
 
-        client.shutdown();
 
+        Thread.sleep(5000);
         System.out.println("The client made " + clientQueryCount.get() + " calls");
-
+        client.shutdown();
         return roundTripQueryCount.get();
 
     }
