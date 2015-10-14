@@ -71,7 +71,7 @@ public class RawClient {
         String host = cmd.getOptionValue("h", "0.0.0.0");
         int port = Integer.parseInt(cmd.getOptionValue("p", "8888"));
 
-        System.out.println(String.format("Connecting from client to server on port: %d", port));
+        System.out.println(String.format("Connecting from client to server %s on port: %d", host, port));
         new RawClient(host, port).run();
         System.out.println("Stopping Client...");
 
