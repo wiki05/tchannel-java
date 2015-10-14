@@ -81,7 +81,7 @@ public class RawClient {
 
         Long endTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
 
-        int actualQueryCount = makeCalls(ByteBufAllocator.DEFAULT.buffer(1024), endTime);
+        int actualQueryCount = makeCalls(Unpooled.wrappedBuffer(new byte[1024]), endTime);
         System.out.println("The QPS for this iteration of the benchmark was " + actualQueryCount / 60.0);
     }
 
