@@ -97,7 +97,7 @@ public class RawClient {
             ByteBuf headers = ByteBufAllocator.DEFAULT.buffer();
 
             RawRequest request = new RawRequest(
-                    100,
+                    1000,
                     "raw",
                     new HashMap<String, String>(),
                     Unpooled.wrappedBuffer("raw".getBytes()),
