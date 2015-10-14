@@ -25,13 +25,9 @@ package com.uber.tchannel.benchmarks;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.uber.tchannel.api.Request;
 import com.uber.tchannel.api.TChannel;
-import com.uber.tchannel.codecs.CodecUtils;
-import com.uber.tchannel.schemes.JSONSerializer;
 import com.uber.tchannel.schemes.RawRequest;
 import com.uber.tchannel.schemes.RawResponse;
-import com.uber.tchannel.schemes.Serializer;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufAllocator;
 import io.netty.buffer.Unpooled;
@@ -83,31 +79,10 @@ public class RawClient {
 
     public void run() throws Exception {
 
-        class Ping {
-            private final String request;
-
-            public Ping(String request) {
-                this.request = request;
-            }
-        }
-
-
-        // TODO move the warm duration has a cmd line parameter
-        Long endTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(30);
-
-        warmup(ByteBufAllocator.DEFAULT.buffer(1024), endTime);
-
-        Thread.sleep(5000);
-
-        endTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
+        Long endTime = System.nanoTime() + TimeUnit.SECONDS.toNanos(60);
 
         int actualQueryCount = makeCalls(ByteBufAllocator.DEFAULT.buffer(1024), endTime);
         System.out.println("The QPS for this iteration of the benchmark was " + actualQueryCount / 60.0);
-    }
-
-    public void warmup(ByteBuf buffer, long endTime) throws Exception {
-        int actualQPS = makeCalls(buffer, endTime);
-        System.out.println("During the warmup duration the actualQPS was: " + actualQPS);
     }
 
     public int makeCalls(final ByteBuf buffer, final long endTime) throws Exception {
@@ -162,7 +137,6 @@ public class RawClient {
 
         Thread.sleep(5000);
         System.out.println("The client made " + clientQueryCount.get() + " calls");
-        client.shutdown();
         return roundTripQueryCount.get();
 
     }
