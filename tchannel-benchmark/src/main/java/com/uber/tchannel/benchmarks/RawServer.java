@@ -63,7 +63,7 @@ public class RawServer {
     public void run() throws Exception {
         TChannel tchannel = new TChannel.Builder("raw-server")
                 .register("raw", new RawRequestHandler())
-                .setServerHost(InetAddress.getLocalHost())
+                .setServerHost(InetAddress.getByAddress(new byte[] {0x00, 0x00, 0x00, 0x00}))
                 .setMaxQueuedRequests(Integer.MAX_VALUE)
                 .setServerPort(this.port)
                 .build();
