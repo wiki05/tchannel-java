@@ -40,39 +40,21 @@
                 </configuration>
             </plugin>
             <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
+                <groupId>org.apache.thrift.tools</groupId>
+                <artifactId>maven-thrift-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>generate-sources</id>
+                        <id>thrift-sources</id>
                         <phase>generate-sources</phase>
-                        <configuration>
-                            <tasks>
-                                <mkdir dir="${project.build.directory}/generated-sources/thrift/gen-java" />
-                                <exec executable="${thrift.executable}" failonerror="true">
-                                    <arg value="--gen" />
-                                    <arg value="java:private-members" />
-                                    <arg value="--out" />
-                                    <arg value="${project.build.directory}/generated-sources/thrift/gen-java" />
-                                    <arg value="src/main/thrift/meta.thrift" />
-                                </exec>
-                                <copy todir="src/main/gen-java" overwrite="true">
-                                    <fileset dir="target/generated-sources/thrift/gen-java" />
-                                </copy>
-                                <mkdir dir="${project.build.directory}/generated-test-sources/thrift/gen-java" />
-                                <exec executable="${thrift.executable}" failonerror="true">
-                                    <arg value="--gen" />
-                                    <arg value="java:private-members" />
-                                    <arg value="--out" />
-                                    <arg value="${project.build.directory}/generated-test-sources/thrift/gen-java" />
-                                    <arg value="src/test/thrift/example.thrift" />
-                                </exec>
-                                <copy todir="src/test/gen-java" overwrite="true">
-                                    <fileset dir="target/generated-test-sources/thrift/gen-java" />
-                                </copy>
-                            </tasks>
-                        </configuration>
                         <goals>
-                            <goal>run</goal>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>thrift-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>testCompile</goal>
                         </goals>
                     </execution>
                 </executions>
